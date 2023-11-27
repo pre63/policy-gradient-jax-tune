@@ -1,0 +1,12 @@
+*.ipynb
+__pycache__/
+Exp*/
+*.pkl
+experiments/
+weights/
+videos/
+.venv
+.DS_Store
+.optuna
+.training_logs
+.logs

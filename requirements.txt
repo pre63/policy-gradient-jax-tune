@@ -1,0 +1,4 @@
+optuna
+isort
+git+https://github.com/pre63/policy_gradients_jax.git
+git+https://github.com/pre63/black.git
