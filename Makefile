@@ -10,6 +10,8 @@ default: install
 
 train:
 	@$(MAKE) fix
+	@mkdir -p .logs
+	@mkdir -p weights
 	@. .venv/bin/activate && PYTHONPATH=. python train.py --model $(model) --env $(env) \
 		--trials $(trials) --store-optuna $(store_optuna) \
 		| tee .logs/$(model)_$(env)_$(platform)_$(shell date +'%Y%m%d%H%M%S').log

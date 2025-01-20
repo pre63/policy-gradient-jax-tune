@@ -12,7 +12,6 @@ SEARCH_SPACE = {
   "seed": ("categorical", [10]),
   "capture_video": ("categorical", [True, False]),
   "write_logs_to_file": ("categorical", [True, False]),
-  "save_model": ("categorical", [True, False]),
   # Environment parameters
   "env_id": ("categorical", ["Humanoid-v5"]),
   "num_envs": ("categorical", [1]),
@@ -55,7 +54,6 @@ def objective(trial):
 
   Config.capture_video = selectParam(SEARCH_SPACE, trial, "capture_video")
   Config.write_logs_to_file = selectParam(SEARCH_SPACE, trial, "write_logs_to_file")
-  Config.save_model = selectParam(SEARCH_SPACE, trial, "save_model")
   Config.num_envs = selectParam(SEARCH_SPACE, trial, "num_envs")
   Config.parallel_envs = selectParam(SEARCH_SPACE, trial, "parallel_envs")
   Config.clip_actions = selectParam(SEARCH_SPACE, trial, "clip_actions")
