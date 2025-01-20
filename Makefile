@@ -1,6 +1,6 @@
-env=Humanoid-v5
+envs=Humanoid-v5
 model=trpo
-platform=cuda
+platform=cuda # or cpu
 trials=1000
 store_optuna=True
 
@@ -12,13 +12,13 @@ train:
 	@$(MAKE) fix
 	@mkdir -p .logs
 	@mkdir -p weights
-	@. .venv/bin/activate && PYTHONPATH=. python train.py --model $(model) --env $(env) \
+	@. .venv/bin/activate && PYTHONPATH=. python train.py --model $(model) --envs $(envs) \
 		--trials $(trials) --store-optuna $(store_optuna) \
-		| tee .logs/$(model)_$(env)_$(platform)_$(shell date +'%Y%m%d%H%M%S').log
+		2>&1 | tee .logs/$(model)_$(envs)_$(platform)_$(shell date +'%Y%m%d').log
 
 evaluate:
 	@$(MAKE) fix
-	@. .venv/bin/activate && PYTHONPATH=. python evaluate.py --model $(model) --env $(env)
+	@. .venv/bin/activate && PYTHONPATH=. python evaluate.py --model $(model) --envs $(envs)
 
 install-ubuntu:
 	@if [ "$$(uname -s)" = "Linux" ] && [ -f "/etc/os-release" ] && grep -iq "ubuntu" /etc/os-release; then \
@@ -44,11 +44,15 @@ install:
 	@if ! python3.11 --version; then echo "Please install python3.11.6" && exit 1; fi
 	@if [ ! -d ".venv" ]; then python3.11 -m venv .venv; fi
 	@. .venv/bin/activate && pip install --upgrade pip
-	@. .venv/bin/activate && pip install -Ur requirements.txt
+	@. .venv/bin/activate && pip install -Ur "requirements/$(platform).txt"
 
 install-ext:
 	@echo "Reinstalling policy_gradients_jax from source..."
-	@. .venv/bin/activate && pip install --force-reinstall git+https://github.com/pre63/policy_gradients_jax.git
+	@if [ "$(platform)" = "cuda" ]; then \
+		. .venv/bin/activate && pip install --force-reinstall "policy_gradients_jax[cuda] @ git+https://github.com/pre63/policy_gradients_jax.git"; \
+	else \
+		. .venv/bin/activate && pip install --force-reinstall "policy_gradients_jax @ git+https://github.com/pre63/policy_gradients_jax.git"; \
+	fi
 
 fix:
 	@. .venv/bin/activate && (isort --multi-line=0 --line-length=100 . && black --line-length 160 .)

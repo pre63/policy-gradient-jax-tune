@@ -28,6 +28,25 @@ This repository includes the hyperparameters for the following algorithms:
 - [Proximal Policy Optimization (ppo)](https://arxiv.org/abs/1707.06347) 
 - [V-MPO (vmpo)](https://arxiv.org/abs/1909.12238) 
 
+
+## Known Issues
+**OpenGL on recent macOS**  
+
+Replace  
+`_CGL = ctypes.CDLL('/System/Library/OpenGL.framework/OpenGL')`  
+with  
+`_CGL = ctypes.CDLL('/opt/X11/lib/libGL.dylib')  
+`  
+in  
+
+```
+nano .venv/lib/python3.11/site-packages/mujoco/cgl/cgl.py
+```
+or
+```
+sed -i.bak "s|_CGL = ctypes.CDLL('/System/Library/OpenGL.framework/OpenGL')|_CGL = ctypes.CDLL('/opt/X11/lib/libGL.dylib')|" .venv/lib/python3.11/site-packages/mujoco/cgl/cgl.py
+```
+
 ## Citing PolicyGradientsJax
 
 If you use PolicyGradientsJax in your research or find it helpful, please consider citing Matthias Lehmann's [paper](https://arxiv.org/abs/2401.13662):

@@ -6,8 +6,6 @@ from optuna.samplers import TPESampler
 from optuna.storages import JournalStorage
 from optuna.storages.journal import JournalFileBackend
 
-from tune.base import evaluate_model, selectParam
-
 
 def config(model_name):
   if model_name == "trpo":
@@ -31,21 +29,33 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser(description="Run Optuna hyperparameter optimization.")
   parser.add_argument("--model", type=str, choices=["trpo", "ppo", "a2c", "reinforce"], default="ppo", help="Model to optimize.")
   parser.add_argument("--trials", type=int, default=1000, help="Number of trials for the optimization.")
-  parser.add_argument("--env", type=str, default="Humanoid-v5", help="Environment to optimize.")
+  parser.add_argument("--envs", type=str, nargs="+", default=["Humanoid-v5"], help="Environments to optimize on.")
+  parser.add_argument("--capture-video", type=bool, default=False, help="Capture video during evaluation.")
+  parser.add_argument("--write-logs-to-file", type=bool, default=True, help="Write logs to file.")
+  parser.add_argument("--seed", type=int, default=10, help="Seed for the experiment.")
+  parser.add_argument("--num-envs", type=int, default=1, help="Number of environments to run in parallel.")
+  parser.add_argument("--parallel-envs", type=bool, default=False, help="Run environments in parallel.")
   parser.add_argument("--store-optuna", type=bool, default=False, help="Store the optuna study.")
   params = parser.parse_args()
 
-  print(f"Optimizing {params.model} on {params.env} with {params.trials} trials, using {os.environ['JAX_PLATFORMS']}.")
+  print(f"Optimizing {params.model} on {params.envs} with {params.trials} trials, using {os.environ['JAX_PLATFORMS']}.")
 
-  objective = config(params.model)
+  objective = config(params.model)(
+    envs=params.envs,
+    capture_video=params.capture_video,
+    write_logs_to_file=params.write_logs_to_file,
+    seed=params.seed,
+    num_envs=params.num_envs,
+    parallel_envs=params.parallel_envs,
+  )
 
   sampler = TPESampler()
   pruner = optuna.pruners.MedianPruner()
-  study_name = f"{params.model}_{params.env}"
+  study_name = f"{params.model}_{params.envs}"
   storage = None
 
   if params.store_optuna:
-    optuna_dir = f".optuna/{params.model}/{params.env}"
+    optuna_dir = f".optuna/{params.model}/{params.envs}"
     os.makedirs(optuna_dir, exist_ok=True)
     storage = JournalStorage(JournalFileBackend(f"{optuna_dir}/storage"))
 

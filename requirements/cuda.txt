@@ -1,0 +1,4 @@
+optuna
+isort
+policy_gradients_jax[cuda] @ git+https://github.com/pre63/policy_gradients_jax.git
+git+https://github.com/pre63/black.git
